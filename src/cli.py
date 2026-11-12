@@ -123,6 +123,61 @@ def cmd_record(args):
     print(f"  נשמרו {count} מיקומים באזור ת\"א")
 
 
+def cmd_chart(args):
+    from src.gtfs_parser import read_gtfs_zip, filter_tel_aviv_routes
+    from src.headway_analyzer import compute_headways
+    from src.bunching import compute_bunching
+    from src.visualize import (
+        plot_headway_distribution, plot_headway_by_stop,
+        plot_bunching_by_stop, plot_headway_timeline,
+    )
+
+    data = read_gtfs_zip(args.gtfs_zip)
+    if args.tel_aviv:
+        data = filter_tel_aviv_routes(data)
+
+    tw = None
+    if args.time_window:
+        parts = args.time_window.split("-")
+        tw = (float(parts[0]), float(parts[1]))
+
+    headways = compute_headways(data, args.route, args.direction)
+    if tw:
+        from src.headway_analyzer import time_to_minutes
+        s, e = tw[0] * 60, tw[1] * 60
+        headways = [r for r in headways if s <= time_to_minutes(r.arrival_time) < e]
+
+    if not headways:
+        print("אין נתונים לתנאים שנבחרו.")
+        return
+
+    out_dir = Path(args.output_dir)
+    tw_suffix = f"_{args.time_window}" if args.time_window else ""
+
+    print(f"מייצר גרפים לקו {args.route} ...")
+
+    p = plot_headway_distribution(headways, args.route,
+                                  output=out_dir / f"headway_dist_{args.route}{tw_suffix}.png")
+    print(f"  {p}")
+
+    p = plot_headway_by_stop(headways, args.route, top_n=args.top_n,
+                             output=out_dir / f"headway_by_stop_{args.route}{tw_suffix}.png")
+    print(f"  {p}")
+
+    bunching = compute_bunching(headways, args.threshold)
+    p = plot_bunching_by_stop(bunching, args.route, top_n=args.top_n,
+                              output=out_dir / f"bunching_by_stop_{args.route}{tw_suffix}.png")
+    print(f"  {p}")
+
+    if args.stop_id:
+        p = plot_headway_timeline(headways, args.stop_id, args.route,
+                                  output=out_dir / f"headway_timeline_{args.stop_id}_{args.route}{tw_suffix}.png")
+        if p:
+            print(f"  {p}")
+        else:
+            print(f"  אין נתונים לתחנה {args.stop_id}")
+
+
 def cmd_list_routes(args):
     from src.gtfs_parser import read_gtfs_zip, filter_tel_aviv_routes
     data = read_gtfs_zip(args.gtfs_zip)
@@ -194,6 +249,19 @@ def main(argv=None):
     p_sim.add_argument("--tel-aviv", action="store_true", default=True)
     p_sim.add_argument("--no-tel-aviv", dest="tel_aviv", action="store_false")
 
+    # chart
+    p_chart = sub.add_parser("chart", help="ייצור גרפים (headway, bunching)")
+    p_chart.add_argument("route", help="מספר קו")
+    p_chart.add_argument("gtfs_zip", nargs="?", default="data/raw/israel-gtfs.zip")
+    p_chart.add_argument("-d", "--direction", default="0", choices=["0", "1"])
+    p_chart.add_argument("-t", "--threshold", type=float, default=2.0)
+    p_chart.add_argument("-w", "--time-window", help="חלון זמן, למשל 7-10")
+    p_chart.add_argument("-o", "--output-dir", default="data/processed/charts")
+    p_chart.add_argument("--top-n", type=int, default=20, help="מספר תחנות בגרף")
+    p_chart.add_argument("--stop-id", help="תחנה ספציפית לגרף timeline")
+    p_chart.add_argument("--tel-aviv", action="store_true", default=True)
+    p_chart.add_argument("--no-tel-aviv", dest="tel_aviv", action="store_false")
+
     # record
     p_rec = sub.add_parser("record", help="דגימת מיקומי רכבים בזמן אמת")
     p_rec.add_argument("-o", "--output-dir", default="data/raw/rt")
@@ -210,6 +278,7 @@ def main(argv=None):
         "list-routes": cmd_list_routes,
         "report": cmd_report,
         "simulate": cmd_simulate,
+        "chart": cmd_chart,
         "record": cmd_record,
     }
     commands[args.command](args)

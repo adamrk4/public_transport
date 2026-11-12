@@ -62,3 +62,10 @@
 * קבצים ששונו: src/cli.py (חדש), STATUS.md
 * מצב עכשיו: כל הצינור עובד מקצה לקצה עם CLI. שימוש: python3 -m src.cli <command>.
 * הבא בתור: שיפורים אפשריים — ויזואליזציה, השוואת מתוכנן מול RT בפועל, README.
+
+2026-11-12 · Claude Code (Opus 4.6)
+
+* עשינו: ויזואליזציה — מודול visualize.py עם 5 סוגי גרפים: התפלגות headway, headway לפי תחנה, bunching לפי תחנה, timeline לתחנה, והשוואת סימולציה. פקודת chart נוספה ל-CLI. נבדק חי על קו 1. הערה: טקסט עברי מופיע הפוך (מגבלת matplotlib RTL).
+* קבצים ששונו: src/visualize.py (חדש), src/cli.py (עודכן — chart), requirements.txt (matplotlib)
+* מצב עכשיו: כל הצינור + CLI + ויזואליזציה עובדים.
+* הבא בתור: השוואת מתוכנן מול RT בפועל, README, תיקון RTL בגרפים.
