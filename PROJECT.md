@@ -22,6 +22,16 @@ public_transport/
 ├── docs/
 │   ├── data_sources.md  # תיעוד מקורות נתונים חיצוניים
 │   └── decisions.md     # החלטות ארכיטקטורה ותכנון
+├── requirements.txt     # תלויות Python
+├── src/
+│   ├── __init__.py
+│   └── gtfs_parser.py   # פרסור וסינון GTFS
+├── tests/
+│   ├── __init__.py
+│   └── test_gtfs_parser.py
+├── data/
+│   ├── raw/             # קבצי GTFS גולמיים (לא ב-git)
+│   └── processed/       # נתונים מעובדים (לא ב-git)
 └── .gitignore
 ```
 
