@@ -55,3 +55,10 @@
 * קבצים ששונו: src/schedule_simulator.py (חדש), tests/test_schedule_simulator.py (חדש), STATUS.md
 * מצב עכשיו: שלבים 1-7 הושלמו. כל הצינור כולל סימולציה עובד.
 * הבא בתור: שיפורים אפשריים — סימולציה על נתוני RT בפועל, ויזואליזציה, CLI.
+
+2026-11-12 · Claude Code (Opus 4.6)
+
+* עשינו: CLI — ממשק שורת פקודה שמאגד את כל הצינור. 6 פקודות: download, parse, list-routes, report, simulate, record. נבדק חי על GTFS אמיתי — parse (2,268 קווים), report (קו 1 שעת שיא), simulate (הוספת 5 נסיעות). 42 בדיקות עוברות.
+* קבצים ששונו: src/cli.py (חדש), STATUS.md
+* מצב עכשיו: כל הצינור עובד מקצה לקצה עם CLI. שימוש: python3 -m src.cli <command>.
+* הבא בתור: שיפורים אפשריים — ויזואליזציה, השוואת מתוכנן מול RT בפועל, README.
